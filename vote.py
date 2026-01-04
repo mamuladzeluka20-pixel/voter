@@ -1,51 +1,29 @@
-import random
-import pyautogui as gui
-import time
-import requests
+import urllib.parse
+import sys
 
-def pick_random_name(file_path):
-    with open(file_path, 'r') as file:
-        names = file.readlines()
-    random_name = random.choice(names).strip()  # Remove leading/trailing white spaces and newlines
-    return random_name
+def vote(url_param):
+    """
+    Process voting with a URL parameter
+    
+    Args:
+        url_param (str): URL parameter containing voting data
+    """
+    try:
+        # Parse the URL parameter
+        parsed = urllib.parse.urlparse(url_param)
+        query_params = urllib.parse.parse_qs(parsed.query)
+        
+        print(f"URL Parameter received: {url_param}")
+        print(f"Parsed parameters: {query_params}")
+        
+        return True
+    except Exception as e:
+        print(f"Error processing URL parameter: {e}")
+        return False
 
-def load_proxies_from_file(file_path):
-    proxies = []
-    with open(file_path, 'r') as file:
-        for line in file:
-            proxy = line.strip()  # Remove leading/trailing white spaces and newlines
-            proxies.append(proxy)
-    return proxies
-
-def make_request_with_proxies(url, proxies):
-    for proxy in proxies:
-        try:
-            response = requests.get(url, proxies={'http': proxy, 'https': proxy}, timeout=5)
-            return response
-        except requests.exceptions.RequestException:
-            continue
-    return None
-
-names_file = 'names.txt'
-random_name = pick_random_name(names_file)
-
-proxy_file = 'proxies.txt'
-proxies = load_proxies_from_file(proxy_file)
-
-# Replace "https://minecraft-mp.com/server/318753" with the actual URL you want to request
-url = "https://minecraft-mp.com/server/318753/vote/"
-response = make_request_with_proxies(url, proxies)
-
-time.sleep(1)
-
-user = "user.png"
-captcha = "captcha.png"
-vote = "votebutt.png"
-gui.click(user)
-gui.typewrite(random_name)
-gui.click(captcha)
-gui.click(vote)
-
-
-
-
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        url_parameter = sys.argv[1]
+        vote(url_parameter)
+    else:
+        print("Usage: python vote.py <url_parameter>")
